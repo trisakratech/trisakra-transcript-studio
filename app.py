@@ -2,10 +2,19 @@
 Transcripts, subtitles and meeting notes, fully offline.
 Powered by faster-whisper (open source). MIT License.
 """
+import os
 import re
+import sys
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+
+# When packaged as a windowed .exe there is no console; avoid download-progress crashes
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 
 APP_NAME = "Trisakra Transcript Studio"
 MODELS = ["tiny", "base", "small", "medium"]  # faster -> more accurate
