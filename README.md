@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo_full.png" alt="Trisakra Technologies" width="260"></p>
+
 # Trisakra Transcript Studio
 
 **Transcripts, subtitles and meeting notes, fully offline.**

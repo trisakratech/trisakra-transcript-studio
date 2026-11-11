@@ -17,6 +17,19 @@ if sys.stderr is None:
 os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 
 APP_NAME = "Trisakra Transcript Studio"
+
+# Tell Windows this is its own app so the taskbar shows our logo, not Python's
+try:
+    import ctypes
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Trisakra.TranscriptStudio.1")
+except Exception:
+    pass
+
+
+def resource(rel):
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, rel)
+
 MODELS = ["tiny", "base", "small", "medium"]  # faster -> more accurate
 
 
@@ -33,6 +46,14 @@ class App(tk.Tk):
         super().__init__()
         self.title(APP_NAME)
         self.geometry("820x600")
+        try:
+            self.iconbitmap(resource("assets/icon.ico"))
+        except Exception:
+            try:
+                self._icon = tk.PhotoImage(file=resource("assets/logo.png"))
+                self.iconphoto(True, self._icon)
+            except Exception:
+                pass
         self.file_path = None
         self.segments = []  # (start, end, text)
         self.busy = False
@@ -42,6 +63,11 @@ class App(tk.Tk):
         ttk.Button(top, text="Choose audio/video file", command=self.pick_file).pack(side="left")
         self.file_label = ttk.Label(top, text="No file selected")
         self.file_label.pack(side="left", padx=10)
+        try:
+            self._logo = tk.PhotoImage(file=resource("assets/logo_small.png"))
+            ttk.Label(top, image=self._logo).pack(side="right")
+        except Exception:
+            pass
 
         opts = ttk.Frame(self, padding=(10, 0))
         opts.pack(fill="x")
@@ -63,14 +89,14 @@ class App(tk.Tk):
         self.status = ttk.Label(self, text="Ready. First run downloads the model (one time).")
         self.status.pack(fill="x", padx=10)
 
-        self.text = tk.Text(self, wrap="word", font=("Segoe UI", 11))
-        self.text.pack(fill="both", expand=True, padx=10, pady=8)
-
         bottom = ttk.Frame(self, padding=10)
-        bottom.pack(fill="x")
+        bottom.pack(side="bottom", fill="x")
         ttk.Button(bottom, text="Save as TXT", command=lambda: self.save("txt")).pack(side="left")
         ttk.Button(bottom, text="Save as SRT", command=lambda: self.save("srt")).pack(side="left", padx=5)
         ttk.Button(bottom, text="Save as VTT", command=lambda: self.save("vtt")).pack(side="left")
+
+        self.text = tk.Text(self, wrap="word", font=("Segoe UI", 11), height=10)
+        self.text.pack(side="top", fill="both", expand=True, padx=10, pady=8)
 
     def pick_file(self):
         p = filedialog.askopenfilename(
